@@ -1,0 +1,104 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 1rem;
+  color: #222;
+}
+
+header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+h1 {
+  flex: 1 1 100%;
+  font-weight: 700;
+  color: #2a2a2a;
+}
+
+#search {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+button {
+  background-color: #0055a5;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #003e75;
+}
+
+main {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+section {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1 1 45%;
+  min-width: 280px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+.code, .desc {
+  flex: 1;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+button.copy-btn, button.run-btn {
+  background-color: #007acc;
+  border: none;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+button.copy-btn:hover {
+  background-color: #005f99;
+}
+
+button.run-btn:hover {
+  background-color: #004d7a;
+}
