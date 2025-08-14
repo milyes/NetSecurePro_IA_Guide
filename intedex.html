@@ -1,0 +1,686 @@
+<!DOCTYPE html><html lang="fr" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guide interactif NetSecurePro IA – by Zoubirou Mohammed Ilyes</title>
+  <meta name="description" content="Guide interactif des Commandes & Requêtes IA de la plateforme NetSecurePro IA – import/export CSV/JSON, recherche, tags, édition et impression." />
+  <meta name="author" content="Zoubirou Mohammed Ilyes — ORCID: https://orcid.org/0009-0007-7571-3178" />
+  <meta name="theme-color" content="#0f172a" />
+  <!-- Tailwind via CDN (production-safe) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Impressions propres */
+    @media print {
+      .no-print { display: none !important; }
+      .print\:block { display: block !important; }
+      .print\:break { page-break-before: always; }
+    }
+    dialog::backdrop { background: rgb(0 0 0 / 0.5); }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-900 antialiased transition-colors duration-200" id="body">
+  <div class="min-h-full">
+    <!-- Header -->
+    <header class="no-print sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-slate-900" aria-hidden="true"><path d="M12 1.5a1 1 0 0 1 .894.553l2.382 4.763 5.257.764a1 1 0 0 1 .554 1.706l-3.803 3.705.898 5.234a1 1 0 0 1-1.451 1.054L12 16.88l-4.681 2.46a1 1 0 0 1-1.451-1.054l.898-5.234L2.963 8.286a1 1 0 0 1 .554-1.706l5.257-.764L11.106 2.053A1 1 0 0 1 12 1.5Z"/></svg>
+          <div>
+            <h1 class="text-lg sm:text-xl font-bold leading-tight">Guide interactif NetSecurePro IA</h1>
+            <p class="text-xs text-slate-500">Plateforme NetSecurePro · Commandes & Requêtes IA · ORCID: <a class="underline" target="_blank" href="https://orcid.org/0009-0007-7571-3178">0009-0007-7571-3178</a></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-import" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100" title="Importer JSON/CSV"><span>Importer</span></button>
+          <button id="btn-export-json" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100" title="Exporter JSON"><span>Exporter JSON</span></button>
+          <button id="btn-export-csv" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100" title="Exporter CSV"><span>Exporter CSV</span></button>
+          <button id="btn-print" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100" title="Imprimer / PDF"><span>Imprimer</span></button>
+          <button id="btn-theme" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100" title="Thème clair/sombre"><span>Thème</span></button>
+          <input id="filePicker" type="file" accept=".json,.csv" class="hidden" />
+        </div>
+      </div>
+    </header><!-- Main -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Alerte sauvegarde locale -->
+  <div id="persistBanner" class="no-print hidden mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-3 text-sm">
+    Vos données ont été chargées depuis le stockage local. Utilisez « Exporter » pour sauvegarder un fichier.
+  </div>
+
+  <!-- Barre de recherche globale -->
+  <div class="no-print mb-6 grid grid-cols-1 md:grid-cols-12 gap-3">
+    <div class="md:col-span-6">
+      <label for="q" class="sr-only">Recherche</label>
+      <input id="q" type="search" placeholder="Recherche globale (titre, tags, contenu…)" class="w-full rounded-xl border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400" />
+    </div>
+    <div class="md:col-span-3">
+      <select id="filterCat" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+        <option value="">Toutes catégories</option>
+        <option>CLI</option>
+        <option>Sécurité</option>
+        <option>Réseau</option>
+        <option>Mobile</option>
+        <option>ISO/Live</option>
+        <option>IA/Prompt</option>
+      </select>
+    </div>
+    <div class="md:col-span-3">
+      <select id="filterPlatform" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+        <option value="">Toutes plateformes</option>
+        <option>Linux</option>
+        <option>Termux</option>
+        <option>Android</option>
+        <option>Windows</option>
+        <option>Web</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="no-print mb-4 flex items-center gap-2">
+    <button id="tabCmd" class="rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white">Commandes</button>
+    <button id="tabIA" class="rounded-xl px-4 py-2 text-sm font-medium bg-slate-100 text-slate-800 border border-slate-300">Requêtes IA</button>
+  </div>
+
+  <!-- Section Commandes -->
+  <section id="section-commands" class="space-y-4">
+    <div class="no-print flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Commandes</h2>
+      <div class="flex items-center gap-2">
+        <button id="btn-add-cmd" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">Ajouter</button>
+        <button data-export-scope="commands" class="btn-export-part rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">Exporter CSV (Commandes)</button>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="text-left p-3">Titre</th>
+            <th class="text-left p-3">Catégorie</th>
+            <th class="text-left p-3">Plateforme</th>
+            <th class="text-left p-3">Commande / Script</th>
+            <th class="text-left p-3">Tags</th>
+            <th class="text-left p-3 no-print">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-commands"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section IA Requests -->
+  <section id="section-ia" class="hidden space-y-4">
+    <div class="no-print flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Requêtes IA</h2>
+      <div class="flex items-center gap-2">
+        <button id="btn-add-ia" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">Ajouter</button>
+        <button data-export-scope="ai" class="btn-export-part rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">Exporter CSV (Requêtes IA)</button>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="text-left p-3">Intention</th>
+            <th class="text-left p-3">Module</th>
+            <th class="text-left p-3">Prompt</th>
+            <th class="text-left p-3">Variables</th>
+            <th class="text-left p-3">Tags</th>
+            <th class="text-left p-3 no-print">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-ai"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-10 text-xs text-slate-500">
+    <p>© <span id="year"></span> NetSecurePro IA – Zoubirou Mohammed Ilyes · Tous droits réservés. Ce guide est stocké localement dans votre navigateur. Pensez à exporter vos données.</p>
+  </footer>
+</main>
+
+  </div>  <!-- Dialog: Add/Edit Command -->  <dialog id="dlg-cmd" class="rounded-2xl w-full max-w-3xl p-0">
+    <form method="dialog" class="p-0">
+      <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 id="dlg-cmd-title" class="font-semibold">Nouvelle commande</h3>
+        <button value="cancel" class="rounded-lg border border-slate-300 px-2 py-1 text-sm">Fermer</button>
+      </div>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <input id="cmd-id" type="hidden" />
+        <label class="block">Titre<input id="cmd-title" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Ex: IA_STARTUP_CLI" required></label>
+        <label class="block">Catégorie<select id="cmd-category" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option>CLI</option><option>Sécurité</option><option>Réseau</option><option>Mobile</option><option>ISO/Live</option></select></label>
+        <label class="block md:col-span-2">Description<textarea id="cmd-desc" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="But, contexte, précautions…"></textarea></label>
+        <label class="block">Plateforme<select id="cmd-platform" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option>Linux</option><option>Termux</option><option>Android</option><option>Windows</option><option>Web</option></select></label>
+        <label class="block">Tags<input id="cmd-tags" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="ex: netsecure, proxy, tunnel"></label>
+        <label class="block md:col-span-2">Commande / Script<textarea id="cmd-code" class="mt-1 font-mono w-full rounded-lg border border-slate-300 px-3 py-2" rows="4" placeholder="Ex: bash launcher.hostlocalproxy.sh"></textarea></label>
+        <label class="block md:col-span-2">Exemple d'utilisation<textarea id="cmd-example" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="Ex: lancer l'interface web locale puis ouvrir WebView"></textarea></label>
+        <label class="block md:col-span-2">Notes sécurité<textarea id="cmd-sec" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="Permissions, secrets, implications réseau…"></textarea></label>
+        <label class="block">Auteur<input id="cmd-author" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" value="Zoubirou Mohammed Ilyes"></label>
+        <label class="block">Source URL<input id="cmd-url" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="https://..."></label>
+      </div>
+      <div class="p-4 border-t border-slate-200 flex items-center justify-end gap-2">
+        <button id="btn-delete-cmd" type="button" class="hidden rounded-lg border border-rose-300 text-rose-700 px-3 py-2 text-sm">Supprimer</button>
+        <button id="btn-save-cmd" value="default" class="rounded-lg bg-slate-900 text-white px-3 py-2 text-sm">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>  <!-- Dialog: Add/Edit IA Request -->  <dialog id="dlg-ia" class="rounded-2xl w-full max-w-3xl p-0">
+    <form method="dialog" class="p-0">
+      <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 id="dlg-ia-title" class="font-semibold">Nouvelle requête IA</h3>
+        <button value="cancel" class="rounded-lg border border-slate-300 px-2 py-1 text-sm">Fermer</button>
+      </div>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <input id="ia-id" type="hidden" />
+        <label class="block">Intention<input id="ia-intent" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="Ex: Lancer Proxy IA hybride" required></label>
+        <label class="block">Module<select id="ia-module" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option>IA Proxy Launcher</option><option>IA_STARTUP_CLI</option><option>USB RemoteAccess</option><option>Mobile WebView</option><option>ISO Live</option></select></label>
+        <label class="block md:col-span-2">Prompt<textarea id="ia-prompt" class="mt-1 font-mono w-full rounded-lg border border-slate-300 px-3 py-2" rows="4" placeholder="Prompt système / utilisateur"></textarea></label>
+        <label class="block">Variables<input id="ia-vars" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="JSON (clé: description)"></label>
+        <label class="block">Tags<input id="ia-tags" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" placeholder="ex: termux, tunnel, unlock_ai"></label>
+        <label class="block md:col-span-2">Sortie attendue<textarea id="ia-output" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="Ex: commande, fichier, log…"></textarea></label>
+        <label class="block md:col-span-2">Notes sécurité<textarea id="ia-sec" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" rows="2" placeholder="Conformité, secrets, accès distant…"></textarea></label>
+      </div>
+      <div class="p-4 border-t border-slate-200 flex items-center justify-end gap-2">
+        <button id="btn-delete-ia" type="button" class="hidden rounded-lg border border-rose-300 text-rose-700 px-3 py-2 text-sm">Supprimer</button>
+        <button id="btn-save-ia" value="default" class="rounded-lg bg-slate-900 text-white px-3 py-2 text-sm">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>  <script>
+    // --- Utilitaires ---
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    const STORE_KEY = 'nsp_ia_guide_v1';
+    const THEME_KEY = 'nsp_theme';
+
+    function uid() { return crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36)+Math.random().toString(36).slice(2)); }
+
+    function toCSV(rows) {
+      if (!rows || !rows.length) return '';
+      const headers = Object.keys(rows[0]);
+      const escape = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+      const lines = [headers.join(',')].concat(rows.map(r => headers.map(h => escape(r[h])).join(',')));
+      return lines.join('\n');
+    }
+
+    function download(filename, text) {
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copy(text) {
+      navigator.clipboard?.writeText(text);
+    }
+
+    function saveStore(data) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    }
+
+    function loadStore() {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    function applyTheme(theme) {
+      const body = document.getElementById('body');
+      if (theme === 'dark') {
+        body.classList.add('bg-slate-900','text-slate-100');
+      } else {
+        body.classList.remove('bg-slate-900','text-slate-100');
+      }
+    }
+
+    function currentTheme() {
+      return localStorage.getItem(THEME_KEY) || 'light';
+    }
+
+    function toggleTheme() {
+      const next = currentTheme() === 'light' ? 'dark' : 'light';
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+    }
+
+    // --- Données initiales (peuvent être éditées) ---
+    const initialData = {
+      commands: [
+        {
+          id: uid(),
+          titre: 'IA_STARTUP_CLI',
+          categorie: 'CLI',
+          plateforme: 'Termux',
+          description: 'Démarrage automatique de l\'environnement IA local et proxy, avec chargement de l\'interface Web (logic_cover.html).',
+          code: 'bash IA_STARTUP_CLI.sh && termux-open-url file:///sdcard/NetSecurePro/logic_cover.html',
+          tags: 'netsecure, ia, startup, webview',
+          exemple: 'Exécuter dans Termux au boot via termux-boot.',
+          securite: 'Contrôler les permissions de stockage et d\'accès réseau.',
+          auteur: 'Zoubirou Mohammed Ilyes',
+          url: ''
+        },
+        {
+          id: uid(),
+          titre: 'launcher.hostlocalproxy.sh',
+          categorie: 'Réseau',
+          plateforme: 'Linux',
+          description: 'Lance un proxy IA local hybride (local/online) et publie un tunnel Cloudflare en fallback.',
+          code: 'bash launcher.hostlocalproxy.sh --mode auto --tunnel cloudflare',
+          tags: 'proxy, cloudflare, hybride',
+          exemple: 'Sur serveur local, puis accès via URL *.trycloudflare.com.',
+          securite: 'Masquer tokens/API dans des variables d\'environnement.',
+          auteur: 'Zoubirou Mohammed Ilyes',
+          url: ''
+        },
+        {
+          id: uid(),
+          titre: 'unlock_ai',
+          categorie: 'Sécurité',
+          plateforme: 'Linux',
+          description: 'Déverrouille l\'interface IA après saisie du mot-clé (locke0).',
+          code: 'bash unlock.sh unlock_ai',
+          tags: 'locke0, sécurité, authentification',
+          exemple: 'S\'exécute au démarrage Live ISO pour activer la plateforme IA.',
+          securite: 'Changer le mot-clé par défaut; journaliser les accès.',
+          auteur: 'Zoubirou Mohammed Ilyes',
+          url: ''
+        },
+        {
+          id: uid(),
+          titre: 'NETSECUREPRO_USB_REMOTEACCESS',
+          categorie: 'Réseau',
+          plateforme: 'Termux',
+          description: 'Détecte les périphériques USB, sélectionne la meilleure connectivité et crée un accès distant sécurisé.',
+          code: 'bash run_usb_access.sh --auto --ui web',
+          tags: 'usb, tunnel, remote',
+          exemple: 'Affiche une interface web/mobile pour contrôle à distance.',
+          securite: 'Restreindre IP, activer authentification et logs.',
+          auteur: 'Zoubirou Mohammed Ilyes',
+          url: ''
+        },
+        {
+          id: uid(),
+          titre: 'VM_NETSECURE_IA.iso (Live)',
+          categorie: 'ISO/Live',
+          plateforme: 'Linux',
+          description: 'Démarre l\'ISO Live personnalisée NetSecurePro IA avec menu IA et scripts d\'initialisation.',
+          code: 'boot via BIOS/UEFI; auto-run IA scripts',
+          tags: 'iso, live, boot',
+          exemple: 'Utiliser EtchDroid pour clé USB bootable.',
+          securite: 'Vérifier la signature SHA256 et métadonnées ISO.',
+          auteur: 'Zoubirou Mohammed Ilyes',
+          url: ''
+        }
+      ],
+      ai: [
+        {
+          id: uid(),
+          intention: 'Lancer Proxy IA hybride (local/online)',
+          module: 'IA Proxy Launcher',
+          prompt: 'Tu es l\'orchestrateur NetSecurePro IA. Si le réseau local est disponible, privilégie le modèle local; sinon bascule vers l\'API distante. Journalise les décisions et expose l\'URL publique du tunnel.',
+          variables: '{"mode": "auto|local|remote", "tunnel": "cloudflare|ngrok"}',
+          tags: 'orchestration, proxy, tunnel',
+          output: 'Log JSON + URL publique',
+          securite: 'Ne jamais exposer les secrets dans les logs.'
+        },
+        {
+          id: uid(),
+          intention: 'Détection USB & contrôle distant',
+          module: 'USB RemoteAccess',
+          prompt: 'Analyse les périphériques USB et recommande la stratégie de connexion (USB tethering, modem, partage). Lance un serveur de contrôle web mobile.',
+          variables: '{"prefer": "usb|wifi", "auth": "token"}',
+          tags: 'usb, réseau, mobile',
+          output: 'Plan d\'action + commandes',
+          securite: 'Limiter les ports exposés, exiger un token.'
+        },
+        {
+          id: uid(),
+          intention: 'Déverrouillage IA (locke0)',
+          module: 'ISO Live',
+          prompt: 'Demander le mot-clé, comparer à la valeur attendue, et activer l\'interface IA si correct. Sinon, journaliser et bloquer.',
+          variables: '{"keyword": "string"}',
+          tags: 'sécurité, auth',
+          output: 'Statut déverrouillage',
+          securite: 'Limiter les tentatives, temporiser.'
+        }
+      ]
+    };
+
+    // --- État ---
+    let state = loadStore() ?? initialData;
+
+    // Banner si données locales
+    if (loadStore()) { $('#persistBanner').classList.remove('hidden'); }
+
+    // --- Rendu ---
+    function highlight(text, q) {
+      if (!q) return text;
+      try {
+        const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+        return String(text).replace(re, '<mark class="bg-yellow-200">$1</mark>');
+      } catch { return text; }
+    }
+
+    function filterRows(rows) {
+      const q = $('#q').value.trim();
+      const cat = $('#filterCat').value;
+      const plat = $('#filterPlatform').value;
+      return rows.filter(r => {
+        const text = JSON.stringify(r).toLowerCase();
+        const okQ = q ? text.includes(q.toLowerCase()) : true;
+        const okC = cat ? (r.categorie === cat || r.module === cat || (r.tags||'').includes(cat)) : true;
+        const okP = plat ? (r.plateforme === plat || (r.tags||'').includes(plat)) : true;
+        return okQ && okC && okP;
+      });
+    }
+
+    function renderCommands() {
+      const tbody = $('#tbody-commands');
+      tbody.innerHTML = '';
+      for (const r of filterRows(state.commands)) {
+        const tr = document.createElement('tr');
+        tr.className = 'border-t border-slate-100';
+        tr.innerHTML = `
+          <td class="p-3 align-top font-medium">${highlight(r.titre, $('#q').value)}</td>
+          <td class="p-3 align-top">${r.categorie||''}</td>
+          <td class="p-3 align-top">${r.plateforme||''}</td>
+          <td class="p-3 align-top">
+            <pre class="font-mono text-xs whitespace-pre-wrap">${highlight(r.code||'', $('#q').value)}</pre><div class="mt-2 text-xs text-slate-500">${highlight(r.description||'', $('#q').value)}</div>
+      </td>
+      <td class="p-3 align-top">${(r.tags||'')}</td>
+      <td class="p-3 align-top no-print">
+        <div class="flex items-center gap-2">
+          <button class="btn-copy rounded-lg border border-slate-300 px-2 py-1 text-xs" data-text="${(r.code||'').replace(/&/g,'&amp;')}">Copier</button>
+          <button class="btn-edit-cmd rounded-lg border border-slate-300 px-2 py-1 text-xs" data-id="${r.id}">Éditer</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function renderAI() {
+  const tbody = $('#tbody-ai');
+  tbody.innerHTML = '';
+  for (const r of filterRows(state.ai)) {
+    const tr = document.createElement('tr');
+    tr.className = 'border-t border-slate-100';
+    tr.innerHTML = `
+      <td class="p-3 align-top font-medium">${highlight(r.intention, $('#q').value)}</td>
+      <td class="p-3 align-top">${r.module||''}</td>
+      <td class="p-3 align-top">
+        <pre class="font-mono text-xs whitespace-pre-wrap">${highlight(r.prompt||'', $('#q').value)}</pre>
+      </td>
+      <td class="p-3 align-top"><pre class="font-mono text-xs">${r.variables||''}</pre></td>
+      <td class="p-3 align-top">${r.tags||''}</td>
+      <td class="p-3 align-top no-print">
+        <div class="flex items-center gap-2">
+          <button class="btn-copy rounded-lg border border-slate-300 px-2 py-1 text-xs" data-text="${(r.prompt||'').replace(/&/g,'&amp;')}">Copier</button>
+          <button class="btn-edit-ia rounded-lg border border-slate-300 px-2 py-1 text-xs" data-id="${r.id}">Éditer</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function renderAll() { renderCommands(); renderAI(); saveStore(state); }
+
+// --- Interactions ---
+$('#year').textContent = new Date().getFullYear();
+
+// Thème
+applyTheme(currentTheme());
+$('#btn-theme').addEventListener('click', toggleTheme);
+
+// Onglets
+$('#tabCmd').addEventListener('click', () => {
+  $('#section-commands').classList.remove('hidden');
+  $('#section-ia').classList.add('hidden');
+  $('#tabCmd').classList.add('bg-slate-900','text-white');
+  $('#tabIA').classList.remove('bg-slate-900','text-white');
+  $('#tabIA').classList.add('bg-slate-100','text-slate-800','border','border-slate-300');
+  $('#tabCmd').classList.remove('bg-slate-100','text-slate-800','border','border-slate-300');
+});
+
+$('#tabIA').addEventListener('click', () => {
+  $('#section-ia').classList.remove('hidden');
+  $('#section-commands').classList.add('hidden');
+  $('#tabIA').classList.add('bg-slate-900','text-white');
+  $('#tabCmd').classList.remove('bg-slate-900','text-white');
+  $('#tabCmd').classList.add('bg-slate-100','text-slate-800','border','border-slate-300');
+  $('#tabIA').classList.remove('bg-slate-100','text-slate-800','border','border-slate-300');
+});
+
+// Recherche/filters
+$('#q').addEventListener('input', renderAll);
+$('#filterCat').addEventListener('change', renderAll);
+$('#filterPlatform').addEventListener('change', renderAll);
+
+// Ajouter/éditer Commandes
+$('#btn-add-cmd').addEventListener('click', () => openCmdDialog());
+$('#btn-save-cmd').addEventListener('click', (e) => { e.preventDefault(); saveCmd(); });
+$('#btn-delete-cmd').addEventListener('click', () => deleteCmd());
+
+// Ajouter/éditer IA
+$('#btn-add-ia').addEventListener('click', () => openIADialog());
+$('#btn-save-ia').addEventListener('click', (e) => { e.preventDefault(); saveIA(); });
+$('#btn-delete-ia').addEventListener('click', () => deleteIA());
+
+// Délégués
+document.addEventListener('click', (e) => {
+  if (e.target.matches('.btn-copy')) {
+    const text = e.target.getAttribute('data-text').replace(/&amp;/g,'&');
+    copy(text);
+    e.target.textContent = 'Copié';
+    setTimeout(() => e.target.textContent = 'Copier', 1000);
+  }
+  if (e.target.matches('.btn-edit-cmd')) {
+    openCmdDialog(e.target.getAttribute('data-id'));
+  }
+  if (e.target.matches('.btn-edit-ia')) {
+    openIADialog(e.target.getAttribute('data-id'));
+  }
+  if (e.target.matches('.btn-export-part')) {
+    const scope = e.target.getAttribute('data-export-scope');
+    const rows = scope === 'commands' ? state.commands : state.ai;
+    const filename = `NetSecurePro_${scope}_${new Date().toISOString().slice(0,10)}.csv`;
+    download(filename, toCSV(rows));
+  }
+});
+
+// Import / Export globaux
+$('#btn-export-json').addEventListener('click', () => {
+  const text = JSON.stringify(state, null, 2);
+  download(`NetSecurePro_IA_Guide_${new Date().toISOString().slice(0,10)}.json`, text);
+});
+
+$('#btn-export-csv').addEventListener('click', () => {
+  const combined = state.commands.map(r => ({ type: 'command', ...r }))
+    .concat(state.ai.map(r => ({ type: 'ai', ...r })));
+  download(`NetSecurePro_ALL_${new Date().toISOString().slice(0,10)}.csv`, toCSV(combined));
+});
+
+$('#btn-print').addEventListener('click', () => window.print());
+
+$('#btn-import').addEventListener('click', () => $('#filePicker').click());
+$('#filePicker').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  try {
+    if (file.name.endsWith('.json')) {
+      const obj = JSON.parse(text);
+      if (obj.commands && obj.ai) {
+        state = obj;
+      } else {
+        alert('JSON invalide: clés attendues { commands: [], ai: [] }');
+        return;
+      }
+    } else if (file.name.endsWith('.csv')) {
+      // Import CSV simple: attend une colonne "type" = command|ai
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      const headers = lines.shift().split(',').map(h => h.replace(/^\"|\"$/g,''));
+      const idx = (k) => headers.indexOf(k);
+      const parseVal = v => v.replace(/^\"|\"$/g,'').replace(/\"\"/g,'\"');
+      const records = lines.map(line => {
+        const cols = line.match(/\"(?:[^\"]|\"\")*\"|[^,]+/g).map(parseVal);
+        const obj = {}; headers.forEach((h,i)=> obj[h]=cols[i] ?? '');
+        return obj;
+      });
+      const cmds = []; const ai = [];
+      for (const r of records) {
+        if ((r.type||'').toLowerCase() === 'command') {
+          cmds.push({
+            id: r.id || uid(), titre: r.titre, categorie: r.categorie, plateforme: r.plateforme,
+            description: r.description, code: r.code, tags: r.tags, exemple: r.exemple,
+            securite: r.securite, auteur: r.auteur, url: r.url
+          });
+        } else if ((r.type||'').toLowerCase() === 'ai') {
+          ai.push({
+            id: r.id || uid(), intention: r.intention, module: r.module, prompt: r.prompt,
+            variables: r.variables, tags: r.tags, output: r.output, securite: r.securite
+          });
+        }
+      }
+      if (cmds.length || ai.length) {
+        state.commands = cmds.length ? cmds : state.commands;
+        state.ai = ai.length ? ai : state.ai;
+      } else {
+        alert('CSV importé mais aucune ligne reconnue (colonne type=command|ai manquante)');
+        return;
+      }
+    } else {
+      alert('Format non supporté. Utilisez JSON ou CSV.');
+      return;
+    }
+    saveStore(state); renderAll();
+    alert('Import terminé.');
+  } catch (err) {
+    console.error(err);
+    alert('Échec import: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+});
+
+// Dialog helpers
+function openCmdDialog(id) {
+  const dlg = $('#dlg-cmd');
+  $('#dlg-cmd-title').textContent = id ? 'Éditer commande' : 'Nouvelle commande';
+  $('#btn-delete-cmd').classList.toggle('hidden', !id);
+  if (id) {
+    const r = state.commands.find(x => x.id === id);
+    $('#cmd-id').value = r.id;
+    $('#cmd-title').value = r.titre || '';
+    $('#cmd-category').value = r.categorie || 'CLI';
+    $('#cmd-desc').value = r.description || '';
+    $('#cmd-platform').value = r.plateforme || 'Linux';
+    $('#cmd-tags').value = r.tags || '';
+    $('#cmd-code').value = r.code || '';
+    $('#cmd-example').value = r.exemple || '';
+    $('#cmd-sec').value = r.securite || '';
+    $('#cmd-author').value = r.auteur || '';
+    $('#cmd-url').value = r.url || '';
+  } else {
+    $('#cmd-id').value = '';
+    $('#cmd-title').value = '';
+    $('#cmd-category').value = 'CLI';
+    $('#cmd-desc').value = '';
+    $('#cmd-platform').value = 'Linux';
+    $('#cmd-tags').value = '';
+    $('#cmd-code').value = '';
+    $('#cmd-example').value = '';
+    $('#cmd-sec').value = '';
+    $('#cmd-author').value = 'Zoubirou Mohammed Ilyes';
+    $('#cmd-url').value = '';
+  }
+  dlg.showModal();
+}
+
+function saveCmd() {
+  const id = $('#cmd-id').value || uid();
+  const rec = {
+    id,
+    titre: $('#cmd-title').value.trim(),
+    categorie: $('#cmd-category').value,
+    description: $('#cmd-desc').value.trim(),
+    plateforme: $('#cmd-platform').value,
+    tags: $('#cmd-tags').value.trim(),
+    code: $('#cmd-code').value,
+    exemple: $('#cmd-example').value,
+    securite: $('#cmd-sec').value,
+    auteur: $('#cmd-author').value,
+    url: $('#cmd-url').value
+  };
+  const idx = state.commands.findIndex(x => x.id === id);
+  if (idx >= 0) state.commands[idx] = rec; else state.commands.unshift(rec);
+  saveStore(state); renderCommands(); $('#dlg-cmd').close();
+}
+
+function deleteCmd() {
+  const id = $('#cmd-id').value; if (!id) return;
+  state.commands = state.commands.filter(x => x.id !== id);
+  saveStore(state); renderCommands(); $('#dlg-cmd').close();
+}
+
+function openIADialog(id) {
+  const dlg = $('#dlg-ia');
+  $('#dlg-ia-title').textContent = id ? 'Éditer requête IA' : 'Nouvelle requête IA';
+  $('#btn-delete-ia').classList.toggle('hidden', !id);
+  if (id) {
+    const r = state.ai.find(x => x.id === id);
+    $('#ia-id').value = r.id;
+    $('#ia-intent').value = r.intention || '';
+    $('#ia-module').value = r.module || 'IA Proxy Launcher';
+    $('#ia-prompt').value = r.prompt || '';
+    $('#ia-vars').value = r.variables || '';
+    $('#ia-tags').value = r.tags || '';
+    $('#ia-output').value = r.output || '';
+    $('#ia-sec').value = r.securite || '';
+  } else {
+    $('#ia-id').value = '';
+    $('#ia-intent').value = '';
+    $('#ia-module').value = 'IA Proxy Launcher';
+    $('#ia-prompt').value = '';
+    $('#ia-vars').value = '';
+    $('#ia-tags').value = '';
+    $('#ia-output').value = '';
+    $('#ia-sec').value = '';
+  }
+  dlg.showModal();
+}
+
+function saveIA() {
+  const id = $('#ia-id').value || uid();
+  const rec = {
+    id,
+    intention: $('#ia-intent').value.trim(),
+    module: $('#ia-module').value,
+    prompt: $('#ia-prompt').value,
+    variables: $('#ia-vars').value,
+    tags: $('#ia-tags').value.trim(),
+    output: $('#ia-output').value,
+    securite: $('#ia-sec').value
+  };
+  const idx = state.ai.findIndex(x => x.id === id);
+  if (idx >= 0) state.ai[idx] = rec; else state.ai.unshift(rec);
+  saveStore(state); renderAI(); $('#dlg-ia').close();
+}
+
+function deleteIA() {
+  const id = $('#ia-id').value; if (!id) return;
+  state.ai = state.ai.filter(x => x.id !== id);
+  saveStore(state); renderAI(); $('#dlg-ia').close();
+}
+
+// Impression: forcer l\'affichage des deux sections pour l\'impression
+window.addEventListener('beforeprint', () => {
+  $('#section-commands').classList.remove('hidden');
+  $('#section-ia').classList.remove('hidden');
+});
+
+// Rendu initial
+renderAll();
+
+  </script>
+</body>
+</html>
